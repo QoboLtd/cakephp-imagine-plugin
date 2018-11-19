@@ -39,7 +39,7 @@ class ImageProcessor {
 	 * @var array
 	 */
 	public function __construct(array $config = []) {
-		$this->config($config);
+		$this->setConfig($config);
 	}
 
 	/**
@@ -49,7 +49,7 @@ class ImageProcessor {
 	 */
 	public function imagine($renew = false) {
 		if (empty($this->_imagine) || $renew === true) {
-			$class = '\Imagine\\' . $this->config('engine') . '\Imagine';
+			$class = '\Imagine\\' . $this->getConfig('engine') . '\Imagine';
 			$this->_imagine = new $class();
 			return $this->_imagine;
 		}
@@ -482,7 +482,7 @@ class ImageProcessor {
 	 */
 	protected function _getImage($Image = null) {
 		if (is_string($Image)) {
-			$class = 'Imagine\\' . $this->config('engine') . '\Imagine';
+			$class = 'Imagine\\' . $this->getConfig('engine') . '\Imagine';
 			$Imagine = new $class();
 			return $Imagine->open($Image);
 		}

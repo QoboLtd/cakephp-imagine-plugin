@@ -14,8 +14,8 @@ use Cake\TestSuite\TestCase;
 use Cake\Controller\Controller;
 use Cake\Event\Event;
 use Cake\Core\Configure;
-use Cake\Network\Request;
-use Cake\Network\Response;
+use Cake\Http\ServerRequest;
+use Cake\Http\Response;
 
 	class ImagineImagesTestController extends Controller {
 
@@ -84,7 +84,7 @@ class ImagineComponentTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 		Configure::write('Imagine.salt', 'this-is-a-nice-salt');
-		$request = new Request();
+		$request = new ServerRequest();
 		$response = new Response();
 		$this->Controller = new ImagineImagesTestController($request, $response);
 		$this->Controller->Imagine->Controller = $this->Controller;
@@ -106,9 +106,9 @@ class ImagineComponentTest extends TestCase {
  * @return void
  */
 	public function testGetHash() {
-		$this->Controller->request->query = [
+		$this->Controller->request->withQueryParams([
 			'thumbnail' => 'width|200;height|150'
-		];
+		]);
 		$hash = $this->Controller->Imagine->getHash();
 		$this->assertTrue(is_string($hash));
 	}
@@ -119,31 +119,31 @@ class ImagineComponentTest extends TestCase {
  * @return void
  */
 	public function testCheckHash() {
-		$this->Controller->request->query = [
+		$this->Controller->request->withQueryParams([
 			'thumbnail' => 'width|200;height|150',
 			'hash' => '69aa9f46cdc5a200dc7539fc10eec00f2ba89023'
-		];
+		]);
 		$this->Controller->Imagine->checkHash();
 	}
 
 /**
- * @expectedException Cake\Network\Exception\NotFoundException
+ * @expectedException Cake\Http\Exception\NotFoundException
  */
 	public function testInvalidHash() {
-		$this->Controller->request->query = [
+		$this->Controller->request->withQueryParams([
 			'thumbnail' => 'width|200;height|150',
 			'hash' => 'wrong-hash-value'
-		];
+		]);
 		$this->Controller->Imagine->checkHash();
 	}
 
 /**
- * @expectedException Cake\Network\Exception\NotFoundException
+ * @expectedException Cake\Http\Exception\NotFoundException
  */
 	public function testMissingHash() {
-		$this->Controller->request->query = [
+		$this->Controller->request->withQueryParams([
 			'thumbnail' => 'width|200;height|150'
-		];
+		]);
 		$this->Controller->Imagine->checkHash();
 	}
 
@@ -154,7 +154,7 @@ class ImagineComponentTest extends TestCase {
  */
 	public function testUnpackParams() {
 		$this->assertEquals($this->Controller->Imagine->operations, []);
-		$this->Controller->request->query['thumbnail'] = 'width|200;height|150';
+		$this->Controller->request->withQueryParams(['thumbnail' => 'width|200;height|150']);
 		$this->Controller->Imagine->unpackParams();
 		$this->assertEquals($this->Controller->Imagine->operations, [
 				'thumbnail' => [

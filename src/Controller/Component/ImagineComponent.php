@@ -15,7 +15,7 @@ use Cake\Utility\Security;
 use Cake\Controller\ComponentRegistry;
 use Cake\Event\Event;
 use Cake\Core\Configure;
-use Cake\Network\Exception\NotFoundException;
+use Cake\Http\Exception\NotFoundException;
 use InvalidArgumentException;
 
 /**
@@ -102,7 +102,7 @@ class ImagineComponent extends Component {
 			throw new InvalidArgumentException('Please configure Imagine.salt using Configure::write(\'Imagine.salt\', \'YOUR-SALT-VALUE\')');
 		}
 
-		if (!empty($this->request->query)) {
+		if (!empty($this->request->getQuery())) {
 			$params = $this->request->query;
 			unset($params[$this->_config['hashField']]);
 			ksort($params);
@@ -123,11 +123,11 @@ class ImagineComponent extends Component {
 	 * @return bool True if the hashes match
 	 */
 	public function checkHash($error = true) {
-		if (!isset($this->request->query[$this->_config['hashField']]) && $error) {
+		if (!empty($this->request->getQueryParams($this->_config['hashField'])) && $error) {
 			throw new NotFoundException();
 		}
 
-		$result = $this->request->query[$this->_config['hashField']] == $this->getHash();
+		$result = $this->request->getQueryParams($this->_config['hashField']) == $this->getHash();
 
 		if (!$result && $error) {
 			throw new NotFoundException();
@@ -145,7 +145,7 @@ class ImagineComponent extends Component {
 	 */
 	public function unpackParams($namedParams = []) {
 		if (empty($namedParams)) {
-			$namedParams = $this->request->query;
+			$namedParams = $this->request->getQuery();
 		}
 
 		foreach ($namedParams as $name => $params) {
